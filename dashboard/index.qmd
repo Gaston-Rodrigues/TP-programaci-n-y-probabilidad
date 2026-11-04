@@ -222,3 +222,117 @@ grafico_habitos <- ggplot(
 ggplotly(grafico_habitos, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
+
+# Perfil de la muestra
+
+## Row {.tabset}
+
+```{r}
+#| title: "Edad"
+datos_perfil_edad <- dataset %>%
+  mutate(
+    grupo_edad = cut(
+      age,
+      breaks = c(25, 40, 45, 50, 55, 60, 65),
+      labels = c("Hasta 40", "40 a 45", "45 a 50", "50 a 55", "55 a 60", "60 a 65")
+    )
+  ) %>%
+  count(grupo_edad, name = "pacientes") %>%
+  mutate(
+    porcentaje = pacientes / sum(pacientes) * 100,
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      "Edad: ", grupo_edad,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ","),
+      "<br>Porcentaje: ", etiqueta
+    )
+  )
+
+grafico_perfil_edad <- ggplot(
+  datos_perfil_edad,
+  aes(x = grupo_edad, y = porcentaje, text = detalle)
+) +
+  geom_col(fill = "#2C5F8A") +
+  geom_text(aes(label = etiqueta), nudge_y = 1.5) +
+  labs(
+    title = "La mayoría de los pacientes tiene más de 50 años (69,3 %)",
+    x = "Edad (años)",
+    y = "% de pacientes"
+  ) +
+  theme_minimal()
+
+ggplotly(grafico_perfil_edad, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+```{r}
+#| title: "Sexo"
+datos_perfil_sexo <- dataset %>%
+  mutate(sexo = if_else(gender == 1, "Mujeres", "Hombres")) %>%
+  count(sexo, name = "pacientes") %>%
+  mutate(
+    porcentaje = pacientes / sum(pacientes) * 100,
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      sexo,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ","),
+      "<br>Porcentaje: ", etiqueta
+    )
+  )
+
+grafico_perfil_sexo <- ggplot(
+  datos_perfil_sexo,
+  aes(x = sexo, y = porcentaje, text = detalle)
+) +
+  geom_col(fill = "#2C5F8A", width = 0.5) +
+  geom_text(aes(label = etiqueta), nudge_y = 4) +
+  labs(
+    title = "La muestra tiene más mujeres que hombres: 65,1 % frente a 34,9 %",
+    x = NULL,
+    y = "% de pacientes"
+  ) +
+  expand_limits(y = 75) +
+  theme_minimal()
+
+ggplotly(grafico_perfil_sexo, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+```{r}
+#| title: "Hábitos"
+datos_perfil_habitos <- tibble(
+  habito = c("No fuma", "No consume alcohol", "Realiza actividad física"),
+  pacientes = c(
+    sum(dataset$smoke == 0),
+    sum(dataset$alco == 0),
+    sum(dataset$active == 1)
+  )
+) %>%
+  mutate(
+    porcentaje = pacientes / nrow(dataset) * 100,
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      habito,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ","),
+      "<br>Porcentaje: ", etiqueta
+    )
+  )
+
+grafico_perfil_habitos <- ggplot(
+  datos_perfil_habitos,
+  aes(x = reorder(habito, porcentaje), y = porcentaje, text = detalle)
+) +
+  geom_col(fill = "#2C5F8A", width = 0.6) +
+  geom_text(aes(label = etiqueta), nudge_y = 5) +
+  coord_flip() +
+  labs(
+    title = "La mayoría no fuma, no consume alcohol y realiza actividad física",
+    x = NULL,
+    y = "% de pacientes"
+  ) +
+  expand_limits(y = 110) +
+  theme_minimal()
+
+ggplotly(grafico_perfil_habitos, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```

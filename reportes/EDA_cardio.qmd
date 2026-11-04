@@ -24,7 +24,7 @@ Se importa el archivo `dataset.csv`, utilizando `;` como separador de columnas.
 
 ```{r}
 dataset <- read_delim(
-  "dataset.csv",
+  "../datos/procesados/dataset.csv",
   delim = ";",
   show_col_types = FALSE
 )
@@ -56,7 +56,7 @@ El dataset contiene **68.666 observaciones y 13 variables**. La variable `age` f
 Las variables se clasifican según el tipo de información que representan.
 
 | Variable      | Descripción                            | Clasificación      |
-|-----------------|-------------------------------------|------------------|
+|---------------|----------------------------------------|--------------------|
 | `id`          | Identificador de la observación        | Identificadora     |
 | `age`         | Edad en años                           | Numérica continua  |
 | `gender`      | Género codificado                      | Categórica nominal |

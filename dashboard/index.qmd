@@ -1,0 +1,114 @@
+---
+title: "Enfermedades cardiovasculares"
+author: "Gastón Rodrigues"
+format:
+  dashboard:
+    orientation: rows
+    scrolling: false
+    theme: cosmo
+    css: styles.css
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(plotly)
+
+dataset <- read_delim(
+  "../datos/procesados/dataset.csv",
+  delim = ";",
+  show_col_types = FALSE
+)
+```
+
+# Resumen
+
+## Row {height=30%}
+
+```{r}
+#| content: valuebox
+#| title: "Pacientes"
+list(
+  value = format(nrow(dataset), big.mark = ".", decimal.mark = ","),
+  icon = "people-fill",
+  color = "primary"
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Con enfermedad"
+list(
+  value = paste0(format(round(mean(dataset$cardio) * 100, 1), decimal.mark = ","), " %"),
+  icon = "heart-pulse-fill",
+  color = "light"
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Edad mediana"
+list(
+  value = paste0(round(median(dataset$age)), " años"),
+  icon = "calendar3",
+  color = "light"
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Sistólica desde 140"
+list(
+  value = paste0(format(round(mean(dataset$ap_hi >= 140) * 100, 1), decimal.mark = ","), " %"),
+  icon = "activity",
+  color = "light"
+)
+```
+
+## Row {height=70%}
+
+```{r}
+#| title: "El porcentaje con enfermedad sube de 23,1 % a 83,7 % a medida que aumenta la presión sistólica"
+datos_presion <- dataset %>%
+  mutate(
+    grupo_presion = cut(
+      ap_hi,
+      breaks = c(0, 119, 129, 139, Inf),
+      labels = c("Menos de 120", "120 a 129", "130 a 139", "140 o más")
+    )
+  ) %>%
+  group_by(grupo_presion) %>%
+  summarise(
+    pacientes = n(),
+    porcentaje = mean(cardio) * 100
+  ) %>%
+  mutate(
+    destacar = grupo_presion == "140 o más",
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      "Sistólica: ", grupo_presion, " mmHg",
+      "<br>Con enfermedad: ", etiqueta,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ",")
+    )
+  )
+
+grafico_presion <- ggplot(
+  datos_presion,
+  aes(x = grupo_presion, y = porcentaje, fill = destacar, text = detalle)
+) +
+  geom_col() +
+  geom_text(aes(label = etiqueta), nudge_y = 5) +
+  scale_fill_manual(values = c("TRUE" = "#E8762C", "FALSE" = "#2C5F8A")) +
+  labs(x = "Presión sistólica (mmHg)", y = "% con enfermedad") +
+  expand_limits(y = 95) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(grafico_presion, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```

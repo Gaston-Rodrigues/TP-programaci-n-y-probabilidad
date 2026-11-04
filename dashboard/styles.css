@@ -1,0 +1,11 @@
+/* En pantallas angostas, priorizar el dato y ocultar el ícono */
+@media (max-width: 1200px) {
+  .bslib-value-box .value-box-showcase {
+    display: none !important;
+  }
+
+  .bslib-value-box .value-box-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+  }
+}

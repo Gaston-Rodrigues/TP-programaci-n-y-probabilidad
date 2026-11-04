@@ -1,10 +1,21 @@
 #!/bin/bash
+set -e
+
+# Ir a la raíz del proyecto, sin importar desde dónde se ejecute el script
+cd "$(dirname "$0")/.."
 
 # URL del dataset original
 URL="https://raw.githubusercontent.com/Gaston-Rodrigues/TP-Matematica-Aplicada/refs/heads/main/cardio_train.csv"
 
+# Rutas relativas a la raíz del proyecto
+CRUDO="datos/crudos/cardio_train.csv"
+PROCESADO="datos/procesados/dataset.csv"
+
+# Crear las carpetas si no existen
+mkdir -p datos/crudos datos/procesados
+
 # Descargar el dataset original
-wget -O cardio_train.csv "$URL"
+curl -fL -o "$CRUDO" "$URL"
 
 # Limpiar y transformar el dataset
 awk -F';' '
@@ -27,7 +38,7 @@ NR == 1 {
         print
     }
 }
-' cardio_train.csv > dataset.csv
+' "$CRUDO" > "$PROCESADO"
 
 echo "Dataset procesado correctamente."
-echo "Archivo generado: dataset.csv"
+echo "Archivo generado: $PROCESADO"

@@ -112,3 +112,60 @@ grafico_presion <- ggplot(
 ggplotly(grafico_presion, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
+
+# Factores
+
+## Row {.tabset}
+
+```{r}
+#| title: "Edad y presión"
+datos_cruce <- dataset %>%
+  mutate(
+    grupo_presion = cut(
+      ap_hi,
+      breaks = c(0, 119, 129, 139, Inf),
+      labels = c("Menos de 120", "120 a 129", "130 a 139", "140 o más")
+    ),
+    grupo_edad = cut(
+      age,
+      breaks = c(25, 50, 60, 65),
+      labels = c("Hasta 50", "50 a 60", "60 a 65")
+    )
+  ) %>%
+  group_by(grupo_edad, grupo_presion) %>%
+  summarise(
+    pacientes = n(),
+    porcentaje = mean(cardio) * 100,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      "Edad: ", grupo_edad,
+      "<br>Sistólica: ", grupo_presion, " mmHg",
+      "<br>Con enfermedad: ", etiqueta,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ",")
+    )
+  )
+
+grafico_cruce <- ggplot(
+  datos_cruce,
+  aes(x = grupo_presion, y = porcentaje, color = grupo_edad, group = grupo_edad)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(aes(text = detalle), size = 3) +
+  scale_color_manual(
+    values = c("Hasta 50" = "#9DB8D2", "50 a 60" = "#2C5F8A", "60 a 65" = "#E8762C")
+  ) +
+  labs(
+    title = "Con presión baja importa la edad; desde 140 el porcentaje ronda el 84 % en todos los grupos",
+    x = "Presión sistólica (mmHg)",
+    y = "% con enfermedad",
+    color = "Edad"
+  ) +
+  expand_limits(y = c(0, 100)) +
+  theme_minimal()
+
+ggplotly(grafico_cruce, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```

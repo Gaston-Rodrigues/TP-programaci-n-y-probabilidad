@@ -169,3 +169,56 @@ grafico_cruce <- ggplot(
 ggplotly(grafico_cruce, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
+
+```{r}
+#| title: "Edad y hábitos"
+datos_habitos <- dataset %>%
+  mutate(
+    grupo_edad = cut(
+      age,
+      breaks = c(25, 40, 45, 50, 55, 60, 65),
+      labels = c("Hasta 40", "40 a 45", "45 a 50", "50 a 55", "55 a 60", "60 a 65")
+    ),
+    habitos = if_else(
+      smoke == 0 & alco == 0 & active == 1,
+      "No fuma, no bebe y hace actividad",
+      "Resto"
+    )
+  ) %>%
+  group_by(grupo_edad, habitos) %>%
+  summarise(
+    pacientes = n(),
+    porcentaje = mean(cardio) * 100,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    etiqueta = paste0(format(round(porcentaje, 1), decimal.mark = ","), " %"),
+    detalle = paste0(
+      "Edad: ", grupo_edad,
+      "<br>Grupo: ", habitos,
+      "<br>Con enfermedad: ", etiqueta,
+      "<br>Pacientes: ", format(pacientes, big.mark = ".", decimal.mark = ",")
+    )
+  )
+
+grafico_habitos <- ggplot(
+  datos_habitos,
+  aes(x = grupo_edad, y = porcentaje, color = habitos, group = habitos)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(aes(text = detalle), size = 3) +
+  scale_color_manual(
+    values = c("No fuma, no bebe y hace actividad" = "#2C5F8A", "Resto" = "#A7B0BA")
+  ) +
+  labs(
+    title = "Aun con hábitos saludables, el porcentaje sube de 22,8 % a 66,1 % con la edad",
+    x = "Edad (años)",
+    y = "% con enfermedad",
+    color = "Grupo"
+  ) +
+  expand_limits(y = c(0, 100)) +
+  theme_minimal()
+
+ggplotly(grafico_habitos, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```

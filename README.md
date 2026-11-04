@@ -22,6 +22,10 @@ La limpieza convierte la edad de días a años y elimina registros con valores i
 ├── reportes/
 │   ├── EDA_cardio.qmd   # Código del reporte
 │   └── EDA_cardio.pdf   # Reporte generado
+├── dashboard/
+│   ├── index.qmd        # Dashboard
+│   └── styles.css       # Ajustes visuales
+├── entregas/            # Evidencias de entregas
 └── README.md
 ```
 
@@ -57,3 +61,13 @@ Seguir estos pasos en orden:
 4. Abrir `reportes/EDA_cardio.qmd` y hacer clic en **Render**.
 
    Este paso genera `reportes/EDA_cardio.pdf`.
+
+5. Abrir `dashboard/index.qmd` y hacer clic en **Render**.
+
+   Este paso genera el dashboard en `dashboard/_site/`.
+
+## Paquetes del dashboard
+
+```r
+install.packages(c("tidyverse", "plotly", "DT"))
+```

@@ -336,3 +336,42 @@ grafico_perfil_habitos <- ggplot(
 ggplotly(grafico_perfil_habitos, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
+
+# Datos y glosario
+
+## Row
+
+```{r}
+#| title: "Enfermedad por edad y presión sistólica"
+datos_cruce %>%
+  transmute(
+    Edad = grupo_edad,
+    `Sistólica (mmHg)` = grupo_presion,
+    Pacientes = format(pacientes, big.mark = ".", decimal.mark = ","),
+    `Con enfermedad` = etiqueta
+  ) %>%
+  DT::datatable(
+    rownames = FALSE,
+    options = list(pageLength = 12, dom = "ft")
+  )
+```
+
+::: {.card title="Glosario y decisiones"}
+
+**Datos:** se parte de 70.000 registros. La limpieza conserva 68.666 tras convertir la edad a años y excluir presiones inválidas.
+
+**Presiones válidas:** sistólica mayor que diastólica, sistólica de 70 a 250 mmHg y diastólica de 40 a 150 mmHg.
+
+**`cardio`:** indica si el paciente tiene enfermedad cardiovascular.
+
+**Presión sistólica:** es el valor alto de la medición. Se usa porque en estos datos muestra una relación más marcada que la diastólica: correlación de 0,43 frente a 0,34.
+
+**140 mmHg:** es un punto de corte para comparar grupos. No representa un diagnóstico.
+
+**Valores extremos:** se conservan porque no se puede comprobar si son errores. Hay, por ejemplo, 148 alturas menores a 140 cm y 49 pesos menores a 40 kg.
+
+**Colesterol, glucosa e IMC:** se revisaron, pero no integran el mensaje principal. El IMC, además, no distingue músculo de grasa.
+
+**Cómo leer los resultados:** los porcentajes describen esta muestra, no a toda la población. Son asociaciones y no prueban causas.
+
+:::

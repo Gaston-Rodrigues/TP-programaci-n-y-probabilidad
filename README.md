@@ -71,3 +71,7 @@ Seguir estos pasos en orden:
 ```r
 install.packages(c("tidyverse", "plotly", "DT"))
 ```
+
+## Dashboard publicado
+
+https://gaston-rodrigues.github.io/TP-programaci-n-y-probabilidad/
